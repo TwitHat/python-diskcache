@@ -15,7 +15,7 @@ os.mkdir('tmp')
 
 size = 12
 cols = ('Count', 'Time')
-template = ' '.join(['%' + str(size) + 's'] * len(cols))
+template = ' '.join([f'%{size}s'] * len(cols))
 
 print()
 print(' '.join(['=' * size] * len(cols)))
@@ -26,9 +26,9 @@ print(' '.join(['=' * size] * len(cols)))
 
 for count in [10 ** exp for exp in range(6)]:
     for value in range(count):
-        with open(op.join('tmp', '%s.tmp' % value), 'wb') as writer:
+        with open(op.join('tmp', f'{value}.tmp'), 'wb') as writer:
             pass
-        
+
     delta = timeit.timeit(
         stmt="glob.glob1('tmp', '*.tmp')",
         setup='import glob',

@@ -55,20 +55,18 @@ def worker(num, name):
         value = str(count).encode('utf-8') * random.randrange(1, 100)
         choice = random.random()
 
+        start = time.time()
         if choice < 0.900:
-            start = time.time()
             result = obj.get(key)
             end = time.time()
             miss = result is None
             action = 'get'
         elif choice < 0.990:
-            start = time.time()
             result = obj.set(key, value)
             end = time.time()
             miss = result == False
             action = 'set'
         else:
-            start = time.time()
             result = obj.delete(key)
             end = time.time()
             miss = result == False
@@ -78,7 +76,7 @@ def worker(num, name):
             delta = end - start
             timings[action].append(delta)
             if miss:
-                timings[action + '-miss'].append(delta)
+                timings[f'{action}-miss'].append(delta)
 
     with open('output-%d.pkl' % num, 'wb') as writer:
         pickle.dump(timings, writer, protocol=pickle.HIGHEST_PROTOCOL)

@@ -152,7 +152,7 @@ def worker(queue, eviction_policy, processes, threads):
 
 
 def dispatch(num, eviction_policy, processes, threads):
-    with open('input-%s.pkl' % num, 'rb') as reader:
+    with open(f'input-{num}.pkl', 'rb') as reader:
         process_queue = pickle.load(reader)
 
     thread_queues = [Queue.Queue() for _ in range(threads)]
@@ -186,7 +186,7 @@ def dispatch(num, eviction_policy, processes, threads):
         for key in data:
             timings[key].extend(data[key])
 
-    with open('output-%s.pkl' % num, 'wb') as writer:
+    with open(f'output-{num}.pkl', 'wb') as writer:
         pickle.dump(timings, writer, protocol=2)
 
 
@@ -209,12 +209,7 @@ def stress_test(create=True, delete=True,
                 processes=1, threads=1):
     shutil.rmtree('tmp', ignore_errors=True)
 
-    if processes == 1:
-        # Use threads.
-        func = threading.Thread
-    else:
-        func = mp.Process
-
+    func = threading.Thread if processes == 1 else mp.Process
     subprocs = [
         func(target=dispatch, args=(num, eviction_policy, processes, threads))
         for num in range(processes)
@@ -228,7 +223,7 @@ def stress_test(create=True, delete=True,
             process_queue[index % processes].append(ops)
 
         for num in range(processes):
-            with open('input-%s.pkl' % num, 'wb') as writer:
+            with open(f'input-{num}.pkl', 'wb') as writer:
                 pickle.dump(process_queue[num], writer, protocol=2)
 
     for process in subprocs:
@@ -246,15 +241,15 @@ def stress_test(create=True, delete=True,
     timings = {'get': [], 'set': [], 'delete': [], 'self': 0.0}
 
     for num in range(processes):
-        with open('output-%s.pkl' % num, 'rb') as reader:
+        with open(f'output-{num}.pkl', 'rb') as reader:
             data = pickle.load(reader)
             for key in data:
                 timings[key] += data[key]
 
     if delete:
         for num in range(processes):
-            os.remove('input-%s.pkl' % num)
-            os.remove('output-%s.pkl' % num)
+            os.remove(f'input-{num}.pkl')
+            os.remove(f'output-{num}.pkl')
 
     display(eviction_policy, timings)
 

@@ -136,8 +136,8 @@ def test_state(deque):
 
 
 def test_compare(deque):
-    assert not (deque == {})
-    assert not (deque == [0])
+    assert deque != {}
+    assert deque != [0]
     assert deque != [1]
     deque.append(0)
     assert deque <= [0]

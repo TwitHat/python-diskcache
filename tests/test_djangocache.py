@@ -82,7 +82,7 @@ def f():
 
 
 class C:
-    def m(n):
+    def m(self):
         return 24
 
 
@@ -108,7 +108,7 @@ def custom_key_func2(key, key_prefix, version):
 
 _caches_setting_base = {
     'default': {},
-    'prefix': {'KEY_PREFIX': 'cacheprefix{}'.format(os.getpid())},
+    'prefix': {'KEY_PREFIX': f'cacheprefix{os.getpid()}'},
     'v2': {'VERSION': 2},
     'custom_key': {'KEY_FUNCTION': custom_key_func},
     'custom_key2': {'KEY_FUNCTION': custom_key_func2},
@@ -336,7 +336,7 @@ class BaseCacheTests(object):
             self.assertEqual(cache.get(key), value)
 
         # Test `set_many`
-        for (key, value) in stuff.items():
+        for key in stuff:
             cache.delete(key)
         cache.set_many(stuff)
         for (key, value) in stuff.items():
@@ -463,11 +463,9 @@ class BaseCacheTests(object):
         # causing a cull.
         for i in range(1, initial_count):
             cull_cache.set('cull%d' % i, 'value', 1000)
-        count = 0
-        # Count how many keys are left in the cache.
-        for i in range(1, initial_count):
-            if cull_cache.has_key('cull%d' % i):
-                count += 1
+        count = sum(
+            1 for i in range(1, initial_count) if cull_cache.has_key('cull%d' % i)
+        )
         self.assertEqual(count, final_count)
 
     def test_cull(self):
@@ -849,7 +847,7 @@ class BaseCacheTests(object):
         self.assertIsNone(cache.get('brian', version=3))
 
     def test_get_or_set_racing(self):
-        with mock.patch('%s.%s' % (settings.CACHES['default']['BACKEND'], 'add')) as cache_add:
+        with mock.patch(f"{settings.CACHES['default']['BACKEND']}.add") as cache_add:
             # Simulate cache.add() failing to add a value. In that case, the
             # default value should be returned.
             cache_add.return_value = False

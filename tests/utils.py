@@ -19,19 +19,16 @@ def percentile(sequence, percent):
 
 
 def secs(value):
-    units = ['s ', 'ms', 'us', 'ns']
     pos = 0
 
-    if value is None:
+    if value is None or value == 0:
         return '  0.000ns'
-    elif value == 0:
-        return '  0.000ns'
-    else:
-        for unit in units:
-            if value > 1:
-                return '%7.3f' % value + unit
-            else:
-                value *= 1000
+    units = ['s ', 'ms', 'us', 'ns']
+    for unit in units:
+        if value > 1:
+            return '%7.3f' % value + unit
+        else:
+            value *= 1000
 
 
 def run(*args):
@@ -86,7 +83,7 @@ def display(name, timings):
 
     print()
     print(' '.join(['=' * 9] * len(cols)))
-    print('Timings for %s' % name)
+    print(f'Timings for {name}')
     print('-'.join(['-' * 9] * len(cols)))
     print(template % cols)
     print(' '.join(['=' * 9] * len(cols)))
@@ -98,16 +95,21 @@ def display(name, timings):
         len_total += len(values)
         sum_total += sum(values)
 
-        print(template % (
-            action,
-            len(values),
-            len(timings.get(action + '-miss', [])),
-            secs(percentile(values, 0.5)),
-            secs(percentile(values, 0.9)),
-            secs(percentile(values, 0.99)),
-            secs(percentile(values, 1.0)),
-            secs(sum(values)),
-        ))
+        print(
+            (
+                template
+                % (
+                    action,
+                    len(values),
+                    len(timings.get(f'{action}-miss', [])),
+                    secs(percentile(values, 0.5)),
+                    secs(percentile(values, 0.9)),
+                    secs(percentile(values, 0.99)),
+                    secs(percentile(values, 1.0)),
+                    secs(sum(values)),
+                )
+            )
+        )
 
     totals = ('Total', len_total, '', '', '', '', '', secs(sum_total))
     print(template % totals)

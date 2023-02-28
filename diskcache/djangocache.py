@@ -228,7 +228,7 @@ class DjangoCache(BaseCache):
         try:
             return self._cache.incr(key, delta, default, retry)
         except KeyError:
-            raise ValueError("Key '%s' not found" % key)
+            raise ValueError(f"Key '{key}' not found")
 
 
     def decr(self, key, delta=1, version=None, default=None, retry=True):

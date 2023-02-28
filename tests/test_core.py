@@ -167,15 +167,19 @@ def test_pragma_error(cache):
 
 
 def test_close_error(cache):
+
+
+
     class LocalTest(object):
         def __init__(self):
             self._calls = 0
+
         def __getattr__(self, name):
             if self._calls:
                 raise AttributeError
-            else:
-                self._calls += 1
-                return mock.Mock()
+            self._calls += 1
+            return mock.Mock()
+
 
     with mock.patch.object(cache, '_local', LocalTest()):
         cache.close()
@@ -219,7 +223,7 @@ def test_getsetdel(cache):
     for value, (key, _) in enumerate(values):
         assert cache[key] == value
 
-    for _, (key, _) in enumerate(values):
+    for key, _ in values:
         del cache[key]
 
     assert len(cache) == 0
@@ -619,9 +623,7 @@ def test_remove_error(cache):
     except OSError:
         pass
     else:
-        if os.name == 'nt':
-            pass  # File delete errors ignored on Windows.
-        else:
+        if os.name != 'nt':
             raise Exception('test_remove_error failed')
 
 
@@ -636,7 +638,7 @@ def test_check(cache):
 
     with cache.get(0, read=True) as reader:
         full_path = reader.name
-    os.rename(full_path, full_path + '_moved')
+    os.rename(full_path, f'{full_path}_moved')
 
     with cache.get(1, read=True) as reader:
         full_path = reader.name
@@ -1150,7 +1152,7 @@ def test_peekitem_ioerror_eacces(cache):
 
 
 def test_iterkeys(cache):
-    assert list(cache.iterkeys()) == []
+    assert not list(cache.iterkeys())
 
 
 def test_pickle(cache):
@@ -1176,7 +1178,7 @@ def test_pragmas(cache):
 
             pragma = key[7:]
 
-            result = cache._sql('PRAGMA %s' % pragma).fetchall()
+            result = cache._sql(f'PRAGMA {pragma}').fetchall()
 
             if result == [(value,)]:
                 continue

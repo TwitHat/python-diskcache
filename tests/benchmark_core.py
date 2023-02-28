@@ -6,6 +6,7 @@ $ python tests/benchmark_core.py -p 8 > tests/timings_core_p8.txt
 
 """
 
+
 from __future__ import print_function
 
 import collections as co
@@ -30,30 +31,27 @@ OPS = int(1e5)
 RANGE = 100
 WARMUP = int(1e3)
 
-caches = []
-
-
 ###############################################################################
 # Disk Cache Benchmarks
 ###############################################################################
 
 import diskcache
 
-caches.append(('diskcache.Cache', diskcache.Cache, ('tmp',), {},))
-caches.append((
-    'diskcache.FanoutCache(shards=4, timeout=1.0)',
-    diskcache.FanoutCache,
-    ('tmp',),
-    {'shards': 4, 'timeout': 1.0}
-))
-caches.append((
-    'diskcache.FanoutCache(shards=8, timeout=0.010)',
-    diskcache.FanoutCache,
-    ('tmp',),
-    {'shards': 8, 'timeout': 0.010}
-))
-
-
+caches = [
+    ('diskcache.Cache', diskcache.Cache, ('tmp',), {}),
+    (
+        'diskcache.FanoutCache(shards=4, timeout=1.0)',
+        diskcache.FanoutCache,
+        ('tmp',),
+        {'shards': 4, 'timeout': 1.0},
+    ),
+    (
+        'diskcache.FanoutCache(shards=8, timeout=0.010)',
+        diskcache.FanoutCache,
+        ('tmp',),
+        {'shards': 8, 'timeout': 0.010},
+    ),
+]
 ###############################################################################
 # PyLibMC Benchmarks
 ###############################################################################
@@ -102,20 +100,18 @@ def worker(num, kind, args, kwargs):
         value = str(count).encode('utf-8') * random.randrange(1, 100)
         choice = random.random()
 
+        start = time.time()
         if choice < 0.900:
-            start = time.time()
             result = obj.get(key)
             end = time.time()
             miss = result is None
             action = 'get'
         elif choice < 0.990:
-            start = time.time()
             result = obj.set(key, value)
             end = time.time()
             miss = result == False
             action = 'set'
         else:
-            start = time.time()
             result = obj.delete(key)
             end = time.time()
             miss = result == False
@@ -125,7 +121,7 @@ def worker(num, kind, args, kwargs):
             delta = end - start
             timings[action].append(delta)
             if miss:
-                timings[action + '-miss'].append(delta)
+                timings[f'{action}-miss'].append(delta)
 
     with open('output-%d.pkl' % num, 'wb') as writer:
         pickle.dump(timings, writer, protocol=pickle.HIGHEST_PROTOCOL)
