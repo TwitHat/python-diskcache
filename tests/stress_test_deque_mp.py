@@ -101,11 +101,12 @@ def stress_rotate(deque):
 
 def stress(seed, deque):
     random.seed(seed)
-    for count in range(OPERATIONS):
-        if len(deque) > 100:
-            function = random.choice([stress_pop, stress_popleft])
-        else:
-            function = random.choice(functions)
+    for _ in range(OPERATIONS):
+        function = (
+            random.choice([stress_pop, stress_popleft])
+            if len(deque) > 100
+            else random.choice(functions)
+        )
         function(deque)
 
 

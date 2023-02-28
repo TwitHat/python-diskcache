@@ -46,7 +46,7 @@ def parse_data(infile):
 
         if blocks.match(line):
             try:
-                name = title.match(lines[index + 1]).group(1)
+                name = title.match(lines[index + 1])[1]
             except:
                 index += 1
                 continue
@@ -90,18 +90,17 @@ def make_plot(data, action, save=False, show=False, limit=0.005):
     ticks = ('Median', 'P90', 'P99')
     index = (0, 1, 2)
     names = list(data)
-    bars = []
-
-    for pos, (name, color) in enumerate(zip(names, colors)):
-        bars.append(ax.bar(
+    bars = [
+        ax.bar(
             [val + pos * width for val in index],
             [parse_timing(data[name][action][tick], limit) for tick in ticks],
             width,
             color=color,
-        ))
-
+        )
+        for pos, (name, color) in enumerate(zip(names, colors))
+    ]
     ax.set_ylabel('Time (microseconds)')
-    ax.set_title('"%s" Time vs Percentile' % action)
+    ax.set_title(f'"{action}" Time vs Percentile')
     ax.set_xticks([val + width * (len(data) / 2) for val in index])
     ax.set_xticklabels(ticks)
 
@@ -118,7 +117,7 @@ def make_plot(data, action, save=False, show=False, limit=0.005):
         plt.show()
 
     if save:
-        plt.savefig('%s-%s.png' % (save, action), dpi=120, bbox_inches='tight')
+        plt.savefig(f'{save}-{action}.png', dpi=120, bbox_inches='tight')
 
     plt.close()
 

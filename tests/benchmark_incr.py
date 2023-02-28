@@ -30,7 +30,7 @@ def worker(num):
         end = time.time()
         values.append(end - start)
 
-    with open('output-%s.json' % num, 'w') as writer:
+    with open(f'output-{num}.json', 'w') as writer:
         json.dump(values, writer)
 
 
@@ -53,7 +53,7 @@ def main():
 
     for num in range(PROCS):
         values = []
-        with open('output-%s.json' % num) as reader:
+        with open(f'output-{num}.json') as reader:
             values += json.load(reader)
 
     values.sort()

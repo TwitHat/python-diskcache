@@ -277,7 +277,7 @@ def test_getsetdel(cache):
     for value, (key, _) in enumerate(values):
         assert cache[key] == value
 
-    for _, (key, _) in enumerate(values):
+    for key, _ in values:
         del cache[key]
 
     assert len(cache) == 0
@@ -506,7 +506,7 @@ def test_iter_expire(cache):
     time.sleep(0.1)
     assert set(cache) == set(range(100))
     cache.expire()
-    assert set(cache) == set()
+    assert not set(cache)
 
 
 def test_reversed(cache):

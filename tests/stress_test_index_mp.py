@@ -71,16 +71,10 @@ def stress_popitem(index):
 def stress_iter(index):
     iterator = it.islice(index, 5)
 
-    for key in iterator:
-        pass
-
 
 @register
 def stress_reversed(index):
     iterator = it.islice(reversed(index), 5)
-
-    for key in iterator:
-        pass
 
 
 @register
@@ -90,7 +84,7 @@ def stress_len(index):
 
 def stress(seed, index):
     random.seed(seed)
-    for count in range(OPERATIONS):
+    for _ in range(OPERATIONS):
         function = random.choice(functions)
         function(index)
 

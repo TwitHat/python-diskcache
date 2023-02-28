@@ -386,7 +386,7 @@ class Deque(Sequence):
         :return: count of items equal to value in deque
 
         """
-        return sum(1 for item in self if value == item)
+        return sum(value == item for item in self)
 
 
     def extend(self, iterable):
@@ -600,7 +600,7 @@ class Deque(Sequence):
         """
         if not isinstance(steps, int):
             type_name = type(steps).__name__
-            raise TypeError('integer argument expected, got %s' % type_name)
+            raise TypeError(f'integer argument expected, got {type_name}')
 
         len_self = len(self)
 
@@ -1275,13 +1275,12 @@ class Index(MutableMapping):
         if len(self) != len(other):
             return False
 
-        if isinstance(other, (Index, OrderedDict)):
-            alpha = ((key, self[key]) for key in self)
-            beta = ((key, other[key]) for key in other)
-            pairs = zip(alpha, beta)
-            return not any(a != x or b != y for (a, b), (x, y) in pairs)
-        else:
+        if not isinstance(other, (Index, OrderedDict)):
             return all(self[key] == other.get(key, ENOVAL) for key in self)
+        alpha = ((key, self[key]) for key in self)
+        beta = ((key, other[key]) for key in other)
+        pairs = zip(alpha, beta)
+        return not any(a != x or b != y for (a, b), (x, y) in pairs)
 
 
     def __ne__(self, other):
